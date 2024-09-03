@@ -1,0 +1,27 @@
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
+
+const char* ssid = "your_ssid";
+const char* password = "your_password";
+const char* aws_endpoint = "your_aws_iot_endpoint";
+WiFiClientSecure net;
+PubSubClient client(net);
+
+void setup() {
+    WiFi.begin(ssid, password);
+    net.setCACert(ca_cert);  // Load AWS root CA
+    // Load device certificate and key
+    net.setCertificate(client_cert);
+    net.setPrivateKey(private_key);
+
+    client.setServer(aws_endpoint, 8883);
+    client.connect("client_id");
+}
+
+void loop() {
+    if (!client.connected()) {
+        client.connect("client_id");
+    }
+    client.publish("your/topic", "Hello from ESP32");
+    client.loop();
+}
